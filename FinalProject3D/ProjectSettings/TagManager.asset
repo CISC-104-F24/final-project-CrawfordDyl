@@ -9,6 +9,8 @@ TagManager:
   - BlueCube
   - Coin
   - Cannonball
+  - SpikeTrap
+  - Checkpoint
   layers:
   - Default
   - TransparentFX

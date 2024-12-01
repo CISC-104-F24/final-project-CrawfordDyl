@@ -6,15 +6,17 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int maxLives = 3; 
-    public TMP_Text livesText; 
-    public Transform checkpoint;
-    public Transform startPosition;
+    public int maxLives = 3;
+    public TMP_Text livesText;
+    public Transform startPosition;  // Starting position (default respawn)
+    public Transform[] checkpoints;  // Array to hold all checkpoints in the scene
+    private Transform currentCheckpoint;  // The player's current checkpoint
     private int currentLives;
 
     void Start()
     {
         currentLives = maxLives;
+        currentCheckpoint = startPosition; // Set the initial checkpoint to the starting position
         UpdateLivesUI();
     }
 
@@ -26,13 +28,22 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    void TakeDamage()
+    private void OnTriggerEnter(Collider other)
+    {
+        // If player touches a checkpoint, update the current checkpoint
+        if (other.CompareTag("Checkpoint"))
+        {
+            currentCheckpoint = other.transform; // Set the checkpoint the player reached
+        }
+    }
+
+    public void TakeDamage()
     {
         currentLives--;
 
         if (currentLives > 0)
         {
-            transform.position = checkpoint.position;
+            transform.position = currentCheckpoint.position;  // Respawn at the current checkpoint
         }
         else
         {
@@ -46,7 +57,7 @@ public class PlayerHealth : MonoBehaviour
     void ResetPlayer()
     {
         currentLives = maxLives;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);  // Restart the level
     }
 
     void UpdateLivesUI()

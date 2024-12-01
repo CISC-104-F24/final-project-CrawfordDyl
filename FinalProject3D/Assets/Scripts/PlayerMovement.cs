@@ -5,10 +5,12 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float jumpForce = 7f; 
-    private bool isGrounded; 
+    public float jumpForce = 5f;
+    public bool canDoubleJump = false;
 
     private Rigidbody rb;
+    private bool isGrounded = true;
+    private bool hasDoubleJumped = false;
 
     void Start()
     {
@@ -17,34 +19,45 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        float horizontal = 0;
-        float vertical = 0;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
 
-        if (Input.GetKey(KeyCode.W)) vertical += 1;
-        if (Input.GetKey(KeyCode.S)) vertical -= 1;
-        if (Input.GetKey(KeyCode.A)) horizontal -= 1;
-        if (Input.GetKey(KeyCode.D)) horizontal += 1;
+        Vector3 movement = new Vector3(horizontal * moveSpeed, rb.velocity.y, vertical * moveSpeed);
+        rb.velocity = movement;
 
-        Vector3 moveDirection = new Vector3(horizontal, 0, vertical).normalized;
-        Vector3 velocity = moveDirection * moveSpeed;
-
-        velocity.y = rb.velocity.y;
-
-        rb.velocity = velocity;
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            if (isGrounded)
+            {
+                Jump();
+            }
+            else if (canDoubleJump && !hasDoubleJumped)
+            {
+                Jump();
+                hasDoubleJumped = true;
+            }
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    void Jump()
     {
-        isGrounded = true;
+        rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
     }
 
-    void OnCollisionExit(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
-        isGrounded = false;
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            isGrounded = true;
+            hasDoubleJumped = false;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            isGrounded = false;
+        }
     }
 }
