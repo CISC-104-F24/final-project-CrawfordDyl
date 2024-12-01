@@ -5,16 +5,16 @@ using TMPro;
 
 public class CoinCollection : MonoBehaviour
 {
-    public TMP_Text coinText; // UI text for the coin count
+    public TMP_Text coinText; 
     private int coinCount = 0;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Coin"))
         {
-            coinCount++; // Increment coin count
+            coinCount++; 
             UpdateCoinUI();
-            Destroy(other.gameObject); // Remove the coin
+            Destroy(other.gameObject); 
         }
     }
 
